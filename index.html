@@ -122,6 +122,54 @@ video {
   font-weight: bold;
   color: #fff;
 }
+
+#login-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 8px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  width: 300px;
+}
+
+.login-box h2 {
+  margin-bottom: 15px;
+}
+
+.login-box input {
+  width: 95%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-box button:hover {
+  background-color: #777;
+}
 @media screen and (max-width: 850px) {
   body {
     flex-direction: column;
@@ -180,6 +228,15 @@ video {
 </head>
 <body>
 
+<div id="login-screen">
+  <div class="login-box">
+    <h2>Welcome to Entropy Legacy!</h2>
+    <input type="password" id="passwordInput" placeholder="Enter your password...." onkeypress="handleKeyPress(event)">
+    <button id="togglePassword" onclick="togglePassword()">Show</button>
+    <button onclick="checkPassword()">Login</button>
+  </div>
+</div>
+
 <div class="video-container" id="videoContainer">
     <div id="video-container">
         <button id="pipButton" class="pip-button" style="display: none;">PiP</button>
@@ -199,100 +256,7 @@ video {
     <ul id="channelList"></ul>
 </div>
 
-<script>
-const channels = [
-    {
-        name: "GLOBAL TREKKER",
-        src: "https://linearjitp-playback.astro.com.my/dash-wv/linear/5094/default_primary.mpd",
-        key: "92d34a84fae8e54de0a829629941be10:2fb39ab3f55333d5fa3e830ebf99ec16",
-        drm: "clearkey"
-    },
-    {
-        name: "LOVE NATURE",
-        src: "https://linearjitp-playback.astro.com.my/dash-wv/linear/5096/default_primary.mpd",
-        key: "168bd815468639fe4528b4bf0141f310:775a654c0610811ad022329a68884de1",
-        drm: "clearkey"
-    },
-];
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const videoElement = document.getElementById('video');
-    const pipButton = document.getElementById('pipButton');
-    const channelListElement = document.getElementById('channelList');
-    const videoContainer = document.getElementById('videoContainer');
-
-    if (!document.pictureInPictureEnabled) {
-        pipButton.style.display = 'none';
-    }
-
-    pipButton.addEventListener('click', () => {
-        if (document.pictureInPictureElement) {
-            document.exitPictureInPicture();
-        } else {
-            videoElement.requestPictureInPicture().catch(error => {
-                console.error('Error entering PiP mode: ', error);
-            });
-        }
-    });
-
-    const player = new shaka.Player(videoElement);
-    const ui = new shaka.ui.Overlay(player, videoContainer, videoElement);
-
-    ui.configure({
-        'overflowMenuButtons': ['quality', 'language', 'captions', 'playback_rate', 'cast']
-    });
-
-    async function loadChannel(channel) {
-        videoElement.style.display = "block";
-        videoContainer.classList.add("active");
-
-        if (!shaka.Player.isBrowserSupported()) {
-            alert("Your browser does not support Shaka Player.");
-            return;
-        }
-
-        try {
-            await player.attach(videoElement);
-            player.configure({
-                drm: {
-                    clearKeys: {
-                        [channel.key.split(":")[0]]: channel.key.split(":")[1]
-                    }
-                }
-            });
-
-            await player.load(channel.src);
-            videoElement.play().catch(error => console.warn("Autoplay failed: User interaction needed", error));
-        } catch (error) {
-            console.error("Error loading video:", error);
-            alert("Error loading channel: " + channel.name);
-        }
-    }
-
-    function populateChannels() {
-        channels.forEach((channel) => {
-            const li = document.createElement('li');
-            li.textContent = channel.name;
-            li.onclick = () => {
-                document.querySelectorAll('.channel-list li').forEach(el => el.classList.remove('active'));
-                li.classList.add('active');
-                loadChannel(channel);
-            };
-            channelListElement.appendChild(li);
-        });
-    }
-
-    function searchChannels() {
-        let input = document.getElementById('searchInput').value.toLowerCase();
-        document.querySelectorAll('.channel-list li').forEach(channel => {
-            channel.style.display = channel.textContent.toLowerCase().includes(input) ? "block" : "none";
-        });
-    }
-
-    populateChannels();
-    window.searchChannels = searchChannels;
-});
-</script>
-
+<script src="/scripts/channels.js"></script>
+<script src="/scripts/script.js"></script>
 </body>
 </html>
