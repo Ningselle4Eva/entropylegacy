@@ -1,3 +1,4 @@
+<script>
 const channels = [
     {
         name: "GLOBAL TREKKER",
@@ -12,3 +13,4 @@ const channels = [
         drm: "clearkey"
     },
 ];
+</script>
